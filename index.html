@@ -1877,6 +1877,15 @@ async function transcribeAudio() {
     return;
   }
   
+  // Check daily usage limit (20 times per day)
+  const today = new Date().toISOString().split('T')[0];
+  const usageKey = `speaklab_usage_${today}`;
+  const dailyUsage = parseInt(localStorage.getItem(usageKey) || '0');
+  if (dailyUsage >= 20) {
+    toast('今日转录次数已达上限（20次），明天再来吧', 'error');
+    return;
+  }
+  
   const btn = document.getElementById('transcribeBtn');
   const progressBar = document.getElementById('transcribeProgress');
   const progressFill = document.getElementById('progressFill');
@@ -1946,7 +1955,14 @@ async function transcribeAudio() {
     
     // Process result (Edge Function returns our standard format)
     processTranscription(result);
-    toast('转录完成！', 'success');
+    
+    // Increment daily usage counter
+    const usageToday = new Date().toISOString().split('T')[0];
+    const usageKeyToday = `speaklab_usage_${usageToday}`;
+    const currentUsage = parseInt(localStorage.getItem(usageKeyToday) || '0') + 1;
+    localStorage.setItem(usageKeyToday, String(currentUsage));
+    
+    toast(`转录完成！今日已用 ${currentUsage}/20 次`, 'success');
     
   } catch(e) {
     clearInterval(progressInterval);
