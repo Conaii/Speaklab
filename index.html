@@ -1,0 +1,2533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpeakLab · TAI 口语练习</title>
+<style>
+/* ========================================
+   CSS VARIABLES & RESET
+   ======================================== */
+:root {
+  /* Brand colors - warm, encouraging palette */
+  --green-50: #F0FDF4;
+  --green-100: #DCFCE7;
+  --green-200: #BBF7D0;
+  --green-400: #4ADE80;
+  --green-500: #22C55E;
+  --green-600: #16A34A;
+  --green-700: #15803D;
+  
+  --blue-50: #EFF6FF;
+  --blue-100: #DBEAFE;
+  --blue-400: #60A5FA;
+  --blue-500: #3B82F6;
+  --blue-600: #2563EB;
+  
+  --amber-50: #FFFBEB;
+  --amber-100: #FEF3C7;
+  --amber-400: #FBBF24;
+  --amber-500: #F59E0B;
+  
+  --red-50: #FEF2F2;
+  --red-100: #FEE2E2;
+  --red-400: #F87171;
+  --red-500: #EF4444;
+  
+  --purple-50: #FAF5FF;
+  --purple-100: #F3E8FF;
+  --purple-400: #C084FC;
+  --purple-500: #A855F7;
+  
+  --slate-50: #F8FAFC;
+  --slate-100: #F1F5F9;
+  --slate-200: #E2E8F0;
+  --slate-300: #CBD5E1;
+  --slate-400: #94A3B8;
+  --slate-500: #64748B;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1E293B;
+  --slate-900: #0F172A;
+  
+  --bg: #FAFAF9;
+  --card: #FFFFFF;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--slate-800);
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ========================================
+   TYPOGRAPHY
+   ======================================== */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+h1, h2, h3, h4 { font-family: 'DM Sans', sans-serif; font-weight: 700; }
+code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+/* ========================================
+   LOGIN SCREEN
+   ======================================== */
+.login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #F0FDF4 0%, #EFF6FF 50%, #FAF5FF 100%);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-screen::before {
+  content: '';
+  position: absolute;
+  top: -200px; right: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(74,222,128,0.12) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.login-screen::after {
+  content: '';
+  position: absolute;
+  bottom: -150px; left: -150px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(96,165,250,0.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.login-card {
+  background: var(--card);
+  border-radius: 24px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  z-index: 1;
+  animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.login-logo {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.login-logo .icon {
+  width: 64px; height: 64px;
+  background: linear-gradient(135deg, var(--green-400), var(--blue-400));
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 32px;
+  box-shadow: 0 8px 24px rgba(34,197,94,0.2);
+}
+
+.login-logo h1 {
+  font-size: 26px;
+  color: var(--slate-800);
+  letter-spacing: -0.5px;
+}
+
+.login-logo p {
+  font-size: 14px;
+  color: var(--slate-500);
+  margin-top: 4px;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--slate-600);
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--slate-200);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--slate-800);
+  background: var(--slate-50);
+  transition: var(--transition);
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: var(--green-400);
+  background: white;
+  box-shadow: 0 0 0 4px rgba(74,222,128,0.15);
+}
+
+.form-input::placeholder {
+  color: var(--slate-400);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: var(--transition);
+  line-height: 1.4;
+}
+
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--green-500), var(--green-600));
+  color: white;
+  box-shadow: 0 4px 12px rgba(34,197,94,0.3);
+  width: 100%;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(34,197,94,0.4);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--slate-100);
+  color: var(--slate-700);
+}
+
+.btn-secondary:hover { background: var(--slate-200); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--slate-600);
+  padding: 8px 16px;
+}
+
+.btn-ghost:hover { background: var(--slate-100); }
+
+.btn-sm { padding: 8px 16px; font-size: 13px; }
+
+.login-toggle {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: var(--slate-500);
+}
+
+.login-toggle a {
+  color: var(--green-600);
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-toggle a:hover { text-decoration: underline; }
+
+.login-error {
+  background: var(--red-50);
+  color: var(--red-500);
+  padding: 10px 14px;
+  border-radius: var(--radius-xs);
+  font-size: 13px;
+  margin-bottom: 16px;
+  display: none;
+  border: 1px solid var(--red-100);
+}
+
+.invite-row { display: none; }
+
+/* ========================================
+   MAIN APP LAYOUT
+   ======================================== */
+.app { display: none; min-height: 100vh; }
+
+.app-header {
+  background: var(--card);
+  border-bottom: 1px solid var(--slate-200);
+  padding: 0 24px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.9);
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--slate-800);
+}
+
+.app-brand .dot {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--green-400), var(--blue-400));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.app-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-user .name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--slate-700);
+}
+
+.app-user .btn-ghost { font-size: 13px; }
+
+/* Tab Navigation */
+.tab-nav {
+  background: var(--card);
+  border-bottom: 1px solid var(--slate-200);
+  display: flex;
+  padding: 0 24px;
+  gap: 4px;
+}
+
+.tab-btn {
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--slate-500);
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.tab-btn:hover { color: var(--slate-700); }
+
+.tab-btn.active {
+  color: var(--green-600);
+  border-bottom-color: var(--green-500);
+}
+
+.tab-btn .badge {
+  background: var(--red-500);
+  color: white;
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-weight: 700;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* Main Content */
+.main-content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.page { display: none; }
+.page.active { display: block; }
+
+/* ========================================
+   CARDS
+   ======================================== */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--slate-200);
+  padding: 24px;
+  margin-bottom: 20px;
+  transition: var(--transition);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.card-header h2 {
+  font-size: 18px;
+  color: var(--slate-800);
+}
+
+.card-header h3 {
+  font-size: 16px;
+  color: var(--slate-700);
+}
+
+/* ========================================
+   STATS DASHBOARD
+   ======================================== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.stat-card:hover {
+  border-color: var(--green-200);
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-card .stat-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.stat-card .stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--slate-800);
+  font-family: 'DM Sans', sans-serif;
+}
+
+.stat-card .stat-label {
+  font-size: 12px;
+  color: var(--slate-500);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* ========================================
+   RECORD / UPLOAD SECTION
+   ======================================== */
+.upload-zone {
+  border: 2px dashed var(--slate-300);
+  border-radius: var(--radius);
+  padding: 40px 24px;
+  text-align: center;
+  transition: var(--transition);
+  cursor: pointer;
+  background: var(--slate-50);
+}
+
+.upload-zone:hover, .upload-zone.dragover {
+  border-color: var(--green-400);
+  background: var(--green-50);
+}
+
+.upload-zone .upload-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.upload-zone h3 {
+  font-size: 16px;
+  color: var(--slate-700);
+  margin-bottom: 6px;
+}
+
+.upload-zone p {
+  font-size: 13px;
+  color: var(--slate-500);
+}
+
+.upload-zone input[type="file"] { display: none; }
+
+/* Recording Button */
+.record-section {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+  margin-bottom: 24px;
+}
+
+.record-btn-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  background: var(--slate-50);
+  border: 2px solid var(--slate-200);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.record-btn-wrap:hover {
+  border-color: var(--red-400);
+  background: var(--red-50);
+}
+
+.record-btn-wrap.recording {
+  border-color: var(--red-500);
+  background: var(--red-50);
+  animation: pulse-border 1.5s ease infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
+  50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+}
+
+.record-circle {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--red-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+  margin-bottom: 12px;
+  transition: var(--transition);
+}
+
+.recording .record-circle {
+  border-radius: 12px;
+  animation: record-pulse 1s ease infinite;
+}
+
+@keyframes record-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(0.9); }
+}
+
+.record-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--slate-600);
+}
+
+.record-timer {
+  font-size: 20px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--red-500);
+  margin-top: 4px;
+  display: none;
+}
+
+.recording .record-timer { display: block; }
+.recording .record-label { color: var(--red-500); }
+
+.upload-btn-wrap {
+  flex: 1;
+}
+
+/* Task Type Selector */
+.task-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.task-chip {
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 2px solid var(--slate-200);
+  background: var(--card);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--slate-600);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.task-chip:hover { border-color: var(--slate-400); }
+.task-chip.active {
+  border-color: var(--green-500);
+  background: var(--green-50);
+  color: var(--green-700);
+}
+
+/* Audio Player */
+.audio-preview {
+  display: none;
+  background: var(--slate-50);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  animation: slideUp 0.3s ease;
+}
+
+.audio-preview .audio-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.audio-preview .file-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--slate-700);
+  flex: 1;
+}
+
+.audio-preview .file-size {
+  font-size: 12px;
+  color: var(--slate-500);
+}
+
+.audio-preview audio {
+  width: 100%;
+  height: 40px;
+  border-radius: 8px;
+}
+
+.audio-preview .remove-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--slate-400);
+  padding: 4px;
+  transition: var(--transition);
+}
+
+.audio-preview .remove-btn:hover { color: var(--red-500); }
+
+/* ========================================
+   TRANSCRIPTION RESULT
+   ======================================== */
+.result-panel {
+  display: none;
+  animation: slideUp 0.4s ease;
+}
+
+.result-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.metric {
+  background: var(--slate-50);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  text-align: center;
+}
+
+.metric .metric-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--slate-800);
+  font-family: 'DM Sans', sans-serif;
+}
+
+.metric .metric-label {
+  font-size: 11px;
+  color: var(--slate-500);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.metric.good .metric-value { color: var(--green-600); }
+.metric.warn .metric-value { color: var(--amber-500); }
+.metric.bad .metric-value { color: var(--red-500); }
+
+/* Transcript Text */
+.transcript-box {
+  background: white;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.transcript-box .transcript-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--slate-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.transcript-text {
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--slate-700);
+  white-space: pre-wrap;
+  min-height: 60px;
+}
+
+.transcript-text .filler {
+  background: var(--amber-100);
+  color: var(--amber-500);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.transcript-text .repetition {
+  background: var(--purple-100);
+  color: var(--purple-500);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+/* Filler & Repetition Details */
+.detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.detail-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.detail-tag.filler-tag {
+  background: var(--amber-100);
+  color: var(--amber-500);
+}
+
+.detail-tag.rep-tag {
+  background: var(--purple-100);
+  color: var(--purple-500);
+}
+
+/* Action Buttons */
+.result-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn-submit {
+  background: linear-gradient(135deg, var(--blue-500), var(--blue-600));
+  color: white;
+  box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+  flex: 1;
+}
+
+.btn-submit:hover {
+  box-shadow: 0 6px 20px rgba(37,99,235,0.4);
+  transform: translateY(-1px);
+}
+
+.btn-retry {
+  background: var(--slate-100);
+  color: var(--slate-700);
+}
+
+/* ========================================
+   CORRECTIONS HISTORY
+   ======================================== */
+.correction-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.correction-item {
+  background: var(--card);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius);
+  padding: 20px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.correction-item:hover {
+  border-color: var(--green-300);
+  box-shadow: var(--shadow-sm);
+}
+
+.correction-item .item-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.correction-item .item-date {
+  font-size: 12px;
+  color: var(--slate-500);
+  font-weight: 500;
+}
+
+.correction-item .item-status {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+
+.status-pending {
+  background: var(--amber-100);
+  color: var(--amber-500);
+}
+
+.status-completed {
+  background: var(--green-100);
+  color: var(--green-600);
+}
+
+.correction-item .item-preview {
+  font-size: 14px;
+  color: var(--slate-600);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.correction-item .item-stats {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--slate-500);
+}
+
+.correction-item .item-stats span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Correction Detail Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+  z-index: 500;
+  padding: 24px;
+  overflow-y: auto;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background: var(--card);
+  border-radius: var(--radius);
+  max-width: 720px;
+  margin: 24px auto;
+  padding: 32px;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.3s ease;
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  background: var(--slate-100);
+  border: none;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--slate-500);
+  transition: var(--transition);
+}
+
+.modal-close:hover { background: var(--slate-200); color: var(--slate-700); }
+
+.modal h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  padding-right: 40px;
+}
+
+/* Correction Content */
+.correction-content .section {
+  margin-bottom: 24px;
+}
+
+.correction-content .section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--slate-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.correction-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.correction-table th {
+  text-align: left;
+  padding: 10px 14px;
+  background: var(--slate-50);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--slate-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--slate-200);
+}
+
+.correction-table td {
+  padding: 12px 14px;
+  font-size: 14px;
+  color: var(--slate-700);
+  border-bottom: 1px solid var(--slate-100);
+  vertical-align: top;
+  line-height: 1.6;
+}
+
+.correction-table tr:hover td {
+  background: var(--slate-50);
+}
+
+.correction-table .original { color: var(--red-500); }
+.correction-table .corrected { color: var(--green-600); font-weight: 500; }
+.correction-table .explanation { color: var(--slate-500); font-size: 13px; }
+
+.polished-text {
+  background: var(--green-50);
+  border: 1px solid var(--green-200);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--green-700);
+}
+
+.overall-comment {
+  background: var(--blue-50);
+  border: 1px solid var(--blue-100);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--blue-600);
+}
+
+/* ========================================
+   EMPTY STATES
+   ======================================== */
+.empty-state {
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--slate-500);
+}
+
+.empty-state .empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.6;
+}
+
+.empty-state h3 {
+  font-size: 16px;
+  color: var(--slate-600);
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  font-size: 14px;
+  color: var(--slate-400);
+}
+
+/* ========================================
+   TOAST
+   ======================================== */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  background: var(--slate-800);
+  color: white;
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  animation: toastIn 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 360px;
+}
+
+.toast.success { background: var(--green-600); }
+.toast.error { background: var(--red-500); }
+.toast.info { background: var(--blue-600); }
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ========================================
+   LOADING
+   ======================================== */
+.loading-spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--slate-500);
+}
+
+.spinner {
+  width: 20px; height: 20px;
+  border: 3px solid var(--slate-200);
+  border-top-color: var(--green-500);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Progress bar */
+.progress-bar {
+  height: 4px;
+  background: var(--slate-200);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.progress-bar .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green-400), var(--blue-400));
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+/* ========================================
+   CONFIG PANEL
+   ======================================== */
+.config-panel {
+  background: var(--amber-50);
+  border: 1px solid var(--amber-100);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.config-panel h3 {
+  font-size: 15px;
+  color: var(--amber-500);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.config-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.config-row .form-group { flex: 1; margin-bottom: 0; }
+
+.config-row .form-input {
+  font-size: 13px;
+  padding: 10px 14px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ========================================
+   SETTINGS PAGE
+   ======================================== */
+.setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--slate-100);
+}
+
+.setting-item:last-child { border-bottom: none; }
+
+.setting-info h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--slate-700);
+  margin-bottom: 2px;
+}
+
+.setting-info p {
+  font-size: 12px;
+  color: var(--slate-500);
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .record-section {
+    flex-direction: column;
+  }
+  
+  .result-metrics {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .main-content { padding: 16px; }
+  
+  .login-card { padding: 32px 24px; }
+  
+  .modal { padding: 24px; margin: 12px auto; }
+  
+  .tab-nav { overflow-x: auto; }
+  
+  .result-actions { flex-direction: column; }
+  
+  .config-row { flex-direction: column; }
+}
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-card { padding: 14px; }
+  .stat-card .stat-value { font-size: 22px; }
+  .result-metrics { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================
+     LOGIN / REGISTER SCREEN
+     ============================================ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="icon">🎤</div>
+      <h1>SpeakLab</h1>
+      <p>TAI · Take an Interview 口语练习</p>
+    </div>
+
+    <div class="login-error" id="loginError"></div>
+
+    <div id="loginForm">
+      <div class="form-group">
+        <label>邮箱</label>
+        <input type="email" class="form-input" id="authEmail" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label>密码</label>
+        <input type="password" class="form-input" id="authPassword" placeholder="至少6位">
+      </div>
+      <div class="form-group invite-row" id="inviteRow">
+        <label>邀请码</label>
+        <input type="text" class="form-input" id="authInvite" placeholder="老师提供的邀请码">
+      </div>
+      <div class="form-group invite-row" id="nameRow">
+        <label>你的名字</label>
+        <input type="text" class="form-input" id="authName" placeholder="输入你的名字">
+      </div>
+      
+      <button class="btn btn-primary" id="authBtn" onclick="handleAuth()">登录</button>
+      
+      <div class="login-toggle">
+        <span id="toggleText">没有账号？</span>
+        <a onclick="toggleAuthMode()" id="toggleLink">注册</a>
+      </div>
+
+      <div style="margin-top:16px; text-align:center;">
+        <button class="btn btn-ghost btn-sm" onclick="enterDemoMode()" style="color:var(--slate-400);">
+          🎮 演示模式（无需登录）
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     MAIN APP
+     ============================================ -->
+<div class="app" id="mainApp">
+  <!-- Header -->
+  <header class="app-header">
+    <div class="app-brand">
+      <div class="dot">🎤</div>
+      <span>SpeakLab</span>
+    </div>
+    <div class="app-user">
+      <span class="name" id="userName">学生</span>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">退出</button>
+    </div>
+  </header>
+
+  <!-- Tab Navigation -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('practice')" data-tab="practice">
+      🎙️ 练习
+    </button>
+    <button class="tab-btn" onclick="switchTab('corrections')" data-tab="corrections">
+      ✏️ 我的批改 <span class="badge" id="correctionBadge" style="display:none;">0</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('stats')" data-tab="stats">
+      📊 数据
+    </button>
+    <button class="tab-btn" onclick="switchTab('settings')" data-tab="settings">
+      ⚙️ 设置
+    </button>
+  </nav>
+
+  <div class="main-content">
+    <!-- ====== PAGE: Practice ====== -->
+    <div class="page active" id="pagePractice">
+      
+      <!-- Quick Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">📝</div>
+          <div class="stat-value" id="statTotalPractice">0</div>
+          <div class="stat-label">总练习次数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-value" id="statCorrected">0</div>
+          <div class="stat-label">已批改</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-value" id="statPending">0</div>
+          <div class="stat-label">待批改</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-value" id="statStreak">0</div>
+          <div class="stat-label">连续天数</div>
+        </div>
+      </div>
+
+      <!-- Task Type -->
+      <div class="card">
+        <div class="card-header">
+          <h2>🎙️ 新的练习</h2>
+        </div>
+
+        <div class="task-selector">
+          <button class="task-chip active" onclick="selectTask(this, 0)">🎤 TAI · Take an Interview</button>
+        </div>
+        <p style="font-size:12px;color:var(--slate-400);margin:-12px 0 16px;padding-left:4px;">自由时长，建议 1~3 分钟</p>
+
+        <!-- Record or Upload -->
+        <div class="record-section">
+          <div class="record-btn-wrap" id="recordBtn" onclick="toggleRecording()">
+            <div class="record-circle" id="recordCircle">🎙️</div>
+            <div class="record-label" id="recordLabel">点击录音</div>
+            <div class="record-timer" id="recordTimer">00:00</div>
+          </div>
+          
+          <div class="upload-btn-wrap">
+            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('audioInput').click()">
+              <div class="upload-icon">📁</div>
+              <h3>上传音频</h3>
+              <p>MP3 / WAV / M4A / WEBM</p>
+              <input type="file" id="audioInput" accept="audio/*" onchange="handleFileUpload(event)">
+            </div>
+          </div>
+        </div>
+
+        <!-- Audio Preview -->
+        <div class="audio-preview" id="audioPreview">
+          <div class="audio-info">
+            <span>🎵</span>
+            <span class="file-name" id="audioFileName">recording.webm</span>
+            <span class="file-size" id="audioFileSize"></span>
+            <button class="remove-btn" onclick="removeAudio()" title="移除">✕</button>
+          </div>
+          <audio controls id="audioPlayer"></audio>
+        </div>
+
+        <!-- Transcribe Button -->
+        <div id="transcribeSection" style="display:none;">
+          <button class="btn btn-primary" onclick="transcribeAudio()" id="transcribeBtn" style="width:100%;">
+            🔄 开始转录
+          </button>
+          <div class="progress-bar" id="transcribeProgress" style="display:none;">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result Panel -->
+      <div class="result-panel" id="resultPanel">
+        <div class="card">
+          <div class="card-header">
+            <h2>📊 分析结果</h2>
+            <span class="loading-spinner" id="analyzeSpinner" style="display:none;">
+              <span class="spinner"></span> 分析中...
+            </span>
+          </div>
+
+          <!-- Metrics -->
+          <div class="result-metrics" id="resultMetrics">
+            <div class="metric" id="metricWords">
+              <div class="metric-value">0</div>
+              <div class="metric-label">总词数</div>
+            </div>
+            <div class="metric" id="metricWPM">
+              <div class="metric-value">0</div>
+              <div class="metric-label">WPM 语速</div>
+            </div>
+            <div class="metric" id="metricDuration">
+              <div class="metric-value">0s</div>
+              <div class="metric-label">时长</div>
+            </div>
+            <div class="metric" id="metricFillers">
+              <div class="metric-value">0</div>
+              <div class="metric-label">填充词</div>
+            </div>
+            <div class="metric" id="metricRepeat">
+              <div class="metric-value">0</div>
+              <div class="metric-label">重复</div>
+            </div>
+            <div class="metric" id="metricPause">
+              <div class="metric-value">0</div>
+              <div class="metric-label">停顿</div>
+            </div>
+          </div>
+
+          <!-- Transcript -->
+          <div class="transcript-box">
+            <div class="transcript-label">📝 转录文本</div>
+            <div class="transcript-text" id="transcriptText" contenteditable="true"></div>
+            <div class="detail-tags" id="detailTags"></div>
+          </div>
+
+          <!-- Actions -->
+          <div class="result-actions">
+            <button class="btn btn-submit" onclick="submitForCorrection()">
+              📨 提交给老师批改
+            </button>
+            <button class="btn btn-retry" onclick="resetPractice()">
+              🔄 重新练习
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== PAGE: Corrections ====== -->
+    <div class="page" id="pageCorrections">
+      <div class="card">
+        <div class="card-header">
+          <h2>✏️ 我的批改</h2>
+          <button class="btn btn-secondary btn-sm" onclick="loadCorrections()">刷新</button>
+        </div>
+        <div class="correction-list" id="correctionList">
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <h3>暂无批改记录</h3>
+            <p>完成练习后提交给老师，批改结果会显示在这里</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== PAGE: Stats ====== -->
+    <div class="page" id="pageStats">
+      <div class="card">
+        <div class="card-header">
+          <h2>📊 练习数据</h2>
+        </div>
+        
+        <div class="stats-grid" style="margin-bottom:0;">
+          <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-value" id="avgWPM">--</div>
+            <div class="stat-label">平均语速 WPM</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📖</div>
+            <div class="stat-value" id="avgWords">--</div>
+            <div class="stat-label">平均词数</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-value" id="avgFillers">--</div>
+            <div class="stat-label">平均填充词</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📈</div>
+            <div class="stat-value" id="totalSessions">0</div>
+            <div class="stat-label">总练习次数</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Sessions -->
+      <div class="card">
+        <div class="card-header">
+          <h3>📋 最近练习</h3>
+        </div>
+        <div id="recentSessions">
+          <div class="empty-state">
+            <div class="empty-icon">📊</div>
+            <h3>还没有数据</h3>
+            <p>开始练习后，你的数据会在这里汇总</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== PAGE: Settings ====== -->
+    <div class="page" id="pageSettings">
+      <div class="card">
+        <div class="card-header">
+          <h2>⚙️ 设置</h2>
+        </div>
+
+        <!-- Transcription handled by backend Edge Function -->
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <h4>账号信息</h4>
+            <p id="settingEmail">--</p>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <h4>绑定老师</h4>
+            <p id="settingTeacher">--</p>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <h4>本地数据</h4>
+            <p id="localDataCount">0 条练习记录</p>
+          </div>
+          <button class="btn btn-ghost btn-sm" style="color:var(--red-400);" onclick="clearLocalData()">清除</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Correction Detail Modal -->
+<div class="modal-overlay" id="correctionModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2 id="modalTitle">批改详情</h2>
+    <div class="correction-content" id="modalContent"></div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ============================================
+   APP STATE
+   ============================================ */
+const AppState = {
+  isDemo: false,
+  isLoggedIn: false,
+  isRegisterMode: false,
+  user: null,
+  supabase: null,
+  
+  // Recording
+  mediaRecorder: null,
+  audioChunks: [],
+  audioBlob: null,
+  audioUrl: null,
+  recordingStartTime: null,
+  recordingTimer: null,
+  isRecording: false,
+  
+  // Current task
+  taskDuration: 0,
+  
+  // Data
+  practiceHistory: [],
+  corrections: [],
+  
+  // Keys (Supabase only - Google Cloud API Key is on backend)
+  supabaseUrl: 'https://pfebbjkavgvmsjtckjvz.supabase.co',
+  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmZWJiamthdmd2bXNqdGNranZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY3MzEwOTAsImV4cCI6MjA4MjMwNzA5MH0.r7TaOgysqSHL7eb0InMgIFl4_q3j5nQgQG15_jvEa5c',
+};
+
+/* ============================================
+   INIT
+   ============================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  // Load practice history from localStorage
+  AppState.practiceHistory = JSON.parse(localStorage.getItem('speaklab_history') || '[]');
+  
+  // Try auto-login with Supabase
+  if (AppState.supabaseUrl && AppState.supabaseAnonKey) {
+    initSupabase();
+  }
+  
+  // Drag & drop
+  const zone = document.getElementById('uploadZone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('audio/')) {
+      processAudioFile(file);
+    }
+  });
+  
+  updateDashboard();
+});
+
+/* ============================================
+   SUPABASE INIT
+   ============================================ */
+function initSupabase() {
+  if (!AppState.supabaseUrl || !AppState.supabaseAnonKey) return;
+  
+  // Dynamically load Supabase JS
+  if (typeof supabase === 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+    script.onload = () => {
+      AppState.supabase = supabase.createClient(AppState.supabaseUrl, AppState.supabaseAnonKey);
+      checkSession();
+    };
+    document.head.appendChild(script);
+  } else {
+    AppState.supabase = supabase.createClient(AppState.supabaseUrl, AppState.supabaseAnonKey);
+    checkSession();
+  }
+}
+
+async function checkSession() {
+  if (!AppState.supabase) return;
+  try {
+    const { data: { session } } = await AppState.supabase.auth.getSession();
+    if (session) {
+      AppState.user = session.user;
+      AppState.isLoggedIn = true;
+      showApp();
+      loadUserProfile();
+    }
+  } catch(e) {
+    console.log('No active session');
+  }
+}
+
+async function loadUserProfile() {
+  if (!AppState.supabase || !AppState.user) return;
+  try {
+    const { data } = await AppState.supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', AppState.user.id)
+      .single();
+    if (data) {
+      document.getElementById('userName').textContent = data.name || '学生';
+      document.getElementById('settingEmail').textContent = AppState.user.email;
+      document.getElementById('settingTeacher').textContent = data.teacher_id ? '已绑定' : '未绑定';
+    }
+  } catch(e) { console.error(e); }
+}
+
+/* ============================================
+   AUTH
+   ============================================ */
+function toggleAuthMode() {
+  AppState.isRegisterMode = !AppState.isRegisterMode;
+  const btn = document.getElementById('authBtn');
+  const toggle = document.getElementById('toggleText');
+  const link = document.getElementById('toggleLink');
+  const inviteRows = document.querySelectorAll('.invite-row');
+  
+  if (AppState.isRegisterMode) {
+    btn.textContent = '注册';
+    toggle.textContent = '已有账号？';
+    link.textContent = '登录';
+    inviteRows.forEach(r => r.style.display = 'block');
+  } else {
+    btn.textContent = '登录';
+    toggle.textContent = '没有账号？';
+    link.textContent = '注册';
+    inviteRows.forEach(r => r.style.display = 'none');
+  }
+}
+
+async function handleAuth() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errorEl = document.getElementById('loginError');
+  
+  if (!email || !password) {
+    showLoginError('请填写邮箱和密码');
+    return;
+  }
+  
+  if (!AppState.supabase) {
+    showLoginError('系统连接失败，请稍后再试');
+    return;
+  }
+  
+  const btn = document.getElementById('authBtn');
+  btn.disabled = true;
+  btn.textContent = '处理中...';
+  
+  try {
+    if (AppState.isRegisterMode) {
+      const inviteCode = document.getElementById('authInvite').value.trim().toUpperCase();
+      const name = document.getElementById('authName').value.trim();
+      
+      if (!inviteCode) { showLoginError('请输入邀请码'); btn.disabled = false; btn.textContent = '注册'; return; }
+      if (!name) { showLoginError('请输入你的名字'); btn.disabled = false; btn.textContent = '注册'; return; }
+      
+      const { data, error } = await AppState.supabase.auth.signUp({
+        email, password,
+        options: { data: { name, invite_code: inviteCode } }
+      });
+      
+      if (error) throw error;
+      AppState.user = data.user;
+      AppState.isLoggedIn = true;
+      showApp();
+      toast('注册成功！', 'success');
+    } else {
+      const { data, error } = await AppState.supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      AppState.user = data.user;
+      AppState.isLoggedIn = true;
+      showApp();
+      loadUserProfile();
+      toast('登录成功！', 'success');
+    }
+  } catch(e) {
+    showLoginError(e.message || '操作失败，请重试');
+    btn.disabled = false;
+    btn.textContent = AppState.isRegisterMode ? '注册' : '登录';
+  }
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('loginError');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 5000);
+}
+
+async function logout() {
+  if (AppState.supabase) {
+    await AppState.supabase.auth.signOut();
+  }
+  AppState.isLoggedIn = false;
+  AppState.isDemo = false;
+  AppState.user = null;
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+function enterDemoMode() {
+  AppState.isDemo = true;
+  AppState.isLoggedIn = true;
+  AppState.user = { id: 'demo', email: 'demo@speaklab.com' };
+  document.getElementById('userName').textContent = '演示学生';
+  showApp();
+  toast('已进入演示模式', 'info');
+}
+
+function showApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'block';
+  updateDashboard();
+  loadCorrections();
+}
+
+/* ============================================
+   TAB NAVIGATION
+   ============================================ */
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  
+  if (tab === 'corrections') loadCorrections();
+  if (tab === 'stats') updateStats();
+}
+
+/* ============================================
+   TASK SELECTOR
+   ============================================ */
+function selectTask(el, duration) {
+  document.querySelectorAll('.task-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  AppState.taskDuration = duration;
+}
+
+/* ============================================
+   RECORDING
+   ============================================ */
+async function toggleRecording() {
+  if (AppState.isRecording) {
+    stopRecording();
+  } else {
+    startRecording();
+  }
+}
+
+async function startRecording() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    AppState.audioChunks = [];
+    
+    const options = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+      ? { mimeType: 'audio/webm;codecs=opus' }
+      : {};
+    
+    AppState.mediaRecorder = new MediaRecorder(stream, options);
+    
+    AppState.mediaRecorder.ondataavailable = e => {
+      if (e.data.size > 0) AppState.audioChunks.push(e.data);
+    };
+    
+    AppState.mediaRecorder.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      AppState.audioBlob = new Blob(AppState.audioChunks, { type: 'audio/webm' });
+      AppState.audioUrl = URL.createObjectURL(AppState.audioBlob);
+      showAudioPreview('录音', AppState.audioBlob.size);
+      document.getElementById('audioPlayer').src = AppState.audioUrl;
+    };
+    
+    AppState.mediaRecorder.start(250);
+    AppState.isRecording = true;
+    AppState.recordingStartTime = Date.now();
+    
+    document.getElementById('recordBtn').classList.add('recording');
+    document.getElementById('recordLabel').textContent = '点击停止';
+    document.getElementById('recordCircle').textContent = '⏹';
+    
+    // Timer
+    AppState.recordingTimer = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - AppState.recordingStartTime) / 1000);
+      const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+      const secs = (elapsed % 60).toString().padStart(2, '0');
+      document.getElementById('recordTimer').textContent = `${mins}:${secs}`;
+      
+      // Auto-stop if task has duration limit
+      if (AppState.taskDuration > 0 && elapsed >= AppState.taskDuration) {
+        stopRecording();
+        toast('已达到时间限制，自动停止', 'info');
+      }
+    }, 200);
+    
+  } catch(e) {
+    toast('无法访问麦克风，请检查权限', 'error');
+    console.error(e);
+  }
+}
+
+function stopRecording() {
+  if (AppState.mediaRecorder && AppState.mediaRecorder.state !== 'inactive') {
+    AppState.mediaRecorder.stop();
+  }
+  AppState.isRecording = false;
+  clearInterval(AppState.recordingTimer);
+  
+  document.getElementById('recordBtn').classList.remove('recording');
+  document.getElementById('recordLabel').textContent = '点击录音';
+  document.getElementById('recordCircle').textContent = '🎙️';
+}
+
+/* ============================================
+   FILE UPLOAD
+   ============================================ */
+function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  processAudioFile(file);
+}
+
+function processAudioFile(file) {
+  AppState.audioBlob = file;
+  AppState.audioUrl = URL.createObjectURL(file);
+  showAudioPreview(file.name, file.size);
+  document.getElementById('audioPlayer').src = AppState.audioUrl;
+}
+
+function showAudioPreview(name, size) {
+  document.getElementById('audioPreview').style.display = 'block';
+  document.getElementById('audioFileName').textContent = name;
+  document.getElementById('audioFileSize').textContent = formatBytes(size);
+  document.getElementById('transcribeSection').style.display = 'block';
+}
+
+function removeAudio() {
+  AppState.audioBlob = null;
+  AppState.audioUrl = null;
+  document.getElementById('audioPreview').style.display = 'none';
+  document.getElementById('transcribeSection').style.display = 'none';
+  document.getElementById('resultPanel').style.display = 'none';
+  document.getElementById('audioInput').value = '';
+}
+
+/* ============================================
+   WHISPER TRANSCRIPTION
+   ============================================ */
+async function transcribeAudio() {
+  if (!AppState.audioBlob) {
+    toast('请先录音或上传音频', 'error');
+    return;
+  }
+  
+  if (!AppState.supabase) {
+    toast('系统连接失败，请刷新页面', 'error');
+    return;
+  }
+  
+  // Check authentication
+  if (AppState.isDemo) {
+    toast('演示模式不支持转录，请登录后使用', 'error');
+    return;
+  }
+  
+  const btn = document.getElementById('transcribeBtn');
+  const progressBar = document.getElementById('transcribeProgress');
+  const progressFill = document.getElementById('progressFill');
+  
+  btn.disabled = true;
+  btn.textContent = '🔄 转录中...';
+  progressBar.style.display = 'block';
+  
+  // Animate progress
+  let progress = 0;
+  const progressInterval = setInterval(() => {
+    progress = Math.min(progress + Math.random() * 8, 90);
+    progressFill.style.width = progress + '%';
+  }, 800);
+  
+  try {
+    // Convert audio blob to base64
+    const audioBase64 = await blobToBase64(AppState.audioBlob);
+    const mimeType = AppState.audioBlob.type || 'audio/webm';
+    
+    // Get current session token
+    const { data: { session } } = await AppState.supabase.auth.getSession();
+    if (!session) {
+      throw new Error('未登录，请重新登录');
+    }
+    
+    // Call Supabase Edge Function
+    const response = await fetch(
+      `${AppState.supabaseUrl}/functions/v1/transcribe`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+          'apikey': AppState.supabaseAnonKey,
+        },
+        body: JSON.stringify({
+          audio: audioBase64,
+          mimeType: mimeType,
+          languageCode: 'en-US'
+        })
+      }
+    );
+    
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || `转录失败 (${response.status})`);
+    }
+    
+    const result = await response.json();
+    
+    clearInterval(progressInterval);
+    progressFill.style.width = '100%';
+    
+    setTimeout(() => {
+      progressBar.style.display = 'none';
+      progressFill.style.width = '0%';
+    }, 500);
+    
+    // Process result (Edge Function returns our standard format)
+    processTranscription(result);
+    toast('转录完成！', 'success');
+    
+  } catch(e) {
+    clearInterval(progressInterval);
+    progressBar.style.display = 'none';
+    progressFill.style.width = '0%';
+    toast('转录失败: ' + e.message, 'error');
+    console.error(e);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔄 开始转录';
+  }
+}
+
+/* ============================================
+   AUDIO HELPERS
+   ============================================ */
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+/* ============================================
+   TRANSCRIPTION ANALYSIS
+   ============================================ */
+function processTranscription(result) {
+  const text = result.text || '';
+  const duration = result.duration || 0;
+  const segments = result.segments || [];
+  
+  // Analysis
+  const analysis = analyzeText(text, duration, segments);
+  
+  // Show result panel
+  document.getElementById('resultPanel').style.display = 'block';
+  
+  // Update metrics
+  setMetric('metricWords', analysis.wordCount, analysis.wordCount >= 80 ? 'good' : analysis.wordCount >= 50 ? 'warn' : 'bad');
+  setMetric('metricWPM', analysis.wpm, analysis.wpm >= 120 && analysis.wpm <= 160 ? 'good' : 'warn');
+  setMetric('metricDuration', Math.round(duration) + 's');
+  setMetric('metricFillers', analysis.fillerCount, analysis.fillerCount <= 3 ? 'good' : analysis.fillerCount <= 6 ? 'warn' : 'bad');
+  setMetric('metricRepeat', analysis.repetitionCount, analysis.repetitionCount <= 2 ? 'good' : 'warn');
+  setMetric('metricPause', analysis.longPauses, analysis.longPauses <= 2 ? 'good' : 'warn');
+  
+  // Display transcript with highlights
+  document.getElementById('transcriptText').innerHTML = analysis.highlightedText;
+  
+  // Detail tags
+  const tagsEl = document.getElementById('detailTags');
+  tagsEl.innerHTML = '';
+  
+  if (analysis.fillers.length > 0) {
+    analysis.fillers.forEach(f => {
+      tagsEl.innerHTML += `<span class="detail-tag filler-tag">⚠ "${f.word}" ×${f.count}</span>`;
+    });
+  }
+  if (analysis.repetitions.length > 0) {
+    analysis.repetitions.forEach(r => {
+      tagsEl.innerHTML += `<span class="detail-tag rep-tag">🔁 "${r.word}" ×${r.count}</span>`;
+    });
+  }
+  
+  // Store current result
+  AppState.currentResult = {
+    text,
+    duration: Math.round(duration),
+    analysis,
+    timestamp: new Date().toISOString(),
+    taskDuration: AppState.taskDuration
+  };
+  
+  // Scroll to results
+  document.getElementById('resultPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function analyzeText(text, duration, segments) {
+  // Clean text
+  const cleaned = text.trim();
+  const words = cleaned.split(/\s+/).filter(w => w.length > 0);
+  const wordCount = words.length;
+  
+  // WPM
+  const minutes = duration / 60;
+  const wpm = minutes > 0 ? Math.round(wordCount / minutes) : 0;
+  
+  // Filler words detection (English + Chinese)
+  const fillerPatterns = [
+    'um', 'uh', 'uhm', 'umm', 'er', 'err', 'ah', 'ahh',
+    'like', 'you know', 'i mean', 'basically', 'actually',
+    'so yeah', 'kind of', 'sort of', 'well', 'right',
+    '呃', '嗯', '额', '那个', '就是'
+  ];
+  
+  const lowerText = cleaned.toLowerCase();
+  const fillerMap = {};
+  let fillerCount = 0;
+  
+  fillerPatterns.forEach(filler => {
+    const regex = new RegExp(`\\b${filler.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
+    const matches = lowerText.match(regex);
+    if (matches) {
+      fillerMap[filler] = matches.length;
+      fillerCount += matches.length;
+    }
+  });
+  
+  const fillers = Object.entries(fillerMap)
+    .map(([word, count]) => ({ word, count }))
+    .sort((a, b) => b.count - a.count);
+  
+  // Repetition detection (same word repeated consecutively)
+  const repetitions = [];
+  const repMap = {};
+  const lowerWords = words.map(w => w.toLowerCase().replace(/[^a-z']/g, ''));
+  
+  for (let i = 1; i < lowerWords.length; i++) {
+    if (lowerWords[i] === lowerWords[i-1] && lowerWords[i].length > 2) {
+      repMap[lowerWords[i]] = (repMap[lowerWords[i]] || 1) + 1;
+    }
+  }
+  
+  const repetitionCount = Object.values(repMap).reduce((s, v) => s + v - 1, 0);
+  Object.entries(repMap).forEach(([word, count]) => {
+    if (count > 1) repetitions.push({ word, count });
+  });
+  
+  // Long pauses (from segments)
+  let longPauses = 0;
+  if (segments.length > 1) {
+    for (let i = 1; i < segments.length; i++) {
+      const gap = segments[i].start - segments[i-1].end;
+      if (gap > 2) longPauses++;
+    }
+  }
+  
+  // Highlighted text
+  let highlightedText = cleaned;
+  
+  // Highlight fillers
+  fillerPatterns.forEach(filler => {
+    const regex = new RegExp(`(\\b${filler.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b)`, 'gi');
+    highlightedText = highlightedText.replace(regex, '<span class="filler">$1</span>');
+  });
+  
+  return {
+    wordCount,
+    wpm,
+    fillerCount,
+    fillers,
+    repetitionCount,
+    repetitions,
+    longPauses,
+    highlightedText
+  };
+}
+
+function setMetric(id, value, status) {
+  const el = document.getElementById(id);
+  el.querySelector('.metric-value').textContent = value;
+  el.className = 'metric';
+  if (status) el.classList.add(status);
+}
+
+/* ============================================
+   SUBMIT FOR CORRECTION
+   ============================================ */
+async function submitForCorrection() {
+  if (!AppState.currentResult) {
+    toast('请先完成转录', 'error');
+    return;
+  }
+  
+  const record = {
+    id: 'local_' + Date.now(),
+    text: AppState.currentResult.text,
+    duration: AppState.currentResult.duration,
+    wordCount: AppState.currentResult.analysis.wordCount,
+    wpm: AppState.currentResult.analysis.wpm,
+    fillerCount: AppState.currentResult.analysis.fillerCount,
+    repetitionCount: AppState.currentResult.analysis.repetitionCount,
+    longPauses: AppState.currentResult.analysis.longPauses,
+    taskDuration: AppState.currentResult.taskDuration,
+    status: 'pending',
+    correction: null,
+    createdAt: new Date().toISOString()
+  };
+  
+  // Save to Supabase if connected
+  if (AppState.supabase && AppState.user && !AppState.isDemo) {
+    try {
+      const { data, error } = await AppState.supabase
+        .from('submissions')
+        .insert({
+          student_id: AppState.user.id,
+          transcript: record.text,
+          word_count: record.wordCount,
+          wpm: record.wpm,
+          filler_count: record.fillerCount,
+          duration: record.duration,
+          status: 'submitted'
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      record.id = data.id;
+      record.status = 'submitted';
+      toast('✅ 已提交给老师，等待批改', 'success');
+    } catch(e) {
+      console.error(e);
+      toast('云端提交失败，已保存到本地', 'error');
+    }
+  } else {
+    toast('✅ 已保存到本地记录', 'success');
+  }
+  
+  // Save to local history
+  AppState.practiceHistory.unshift(record);
+  localStorage.setItem('speaklab_history', JSON.stringify(AppState.practiceHistory));
+  
+  updateDashboard();
+}
+
+/* ============================================
+   LOAD CORRECTIONS
+   ============================================ */
+async function loadCorrections() {
+  const listEl = document.getElementById('correctionList');
+  
+  // Combine cloud + local data
+  let allRecords = [...AppState.practiceHistory];
+  
+  // Load from Supabase
+  if (AppState.supabase && AppState.user && !AppState.isDemo) {
+    try {
+      const { data: submissions } = await AppState.supabase
+        .from('submissions')
+        .select(`
+          *,
+          corrections (*)
+        `)
+        .eq('student_id', AppState.user.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
+      
+      if (submissions && submissions.length > 0) {
+        // Merge cloud data
+        allRecords = submissions.map(s => ({
+          id: s.id,
+          text: s.transcript,
+          duration: s.duration,
+          wordCount: s.word_count,
+          wpm: s.wpm,
+          fillerCount: s.filler_count,
+          status: s.corrections?.length > 0 ? 'completed' : s.status,
+          correction: s.corrections?.[0] || null,
+          createdAt: s.created_at,
+          isCloud: true
+        }));
+      }
+    } catch(e) {
+      console.error('Failed to load cloud data:', e);
+    }
+  }
+  
+  if (allRecords.length === 0) {
+    listEl.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h3>暂无记录</h3>
+        <p>完成练习后提交给老师，批改结果会显示在这里</p>
+      </div>`;
+    return;
+  }
+  
+  // Count badges
+  const pendingCount = allRecords.filter(r => r.status === 'pending' || r.status === 'submitted').length;
+  const completedCount = allRecords.filter(r => r.status === 'completed').length;
+  
+  const badge = document.getElementById('correctionBadge');
+  if (completedCount > 0) {
+    badge.textContent = completedCount;
+    badge.style.display = 'inline';
+  } else {
+    badge.style.display = 'none';
+  }
+  
+  listEl.innerHTML = allRecords.map(r => `
+    <div class="correction-item" onclick="viewCorrection('${r.id}')">
+      <div class="item-header">
+        <div class="item-date">${formatDate(r.createdAt)}</div>
+        <div class="item-status ${r.status === 'completed' ? 'status-completed' : 'status-pending'}">
+          ${r.status === 'completed' ? '✅ 已批改' : '⏳ 待批改'}
+        </div>
+      </div>
+      <div class="item-preview">${escapeHtml(r.text || '').substring(0, 120)}${(r.text||'').length > 120 ? '...' : ''}</div>
+      <div class="item-stats">
+        <span>📝 ${r.wordCount || '--'} 词</span>
+        <span>⚡ ${r.wpm || '--'} WPM</span>
+        <span>⏱ ${r.duration || '--'}s</span>
+        <span>⚠️ ${r.fillerCount || 0} 填充词</span>
+        ${r.isCloud ? '<span>☁️ 云端</span>' : '<span>💾 本地</span>'}
+      </div>
+    </div>
+  `).join('');
+}
+
+function viewCorrection(id) {
+  const record = AppState.practiceHistory.find(r => r.id === id) ||
+                 AppState.practiceHistory.find(r => String(r.id) === String(id));
+  
+  if (!record) {
+    // Try to find from cloud data
+    toast('查看详情...', 'info');
+    return;
+  }
+  
+  const modal = document.getElementById('correctionModal');
+  const title = document.getElementById('modalTitle');
+  const content = document.getElementById('modalContent');
+  
+  title.textContent = `练习详情 · ${formatDate(record.createdAt)}`;
+  
+  let html = '';
+  
+  // Metrics
+  html += `
+    <div class="section">
+      <div class="section-title">📊 核心数据</div>
+      <div class="result-metrics">
+        <div class="metric"><div class="metric-value">${record.wordCount || '--'}</div><div class="metric-label">总词数</div></div>
+        <div class="metric"><div class="metric-value">${record.wpm || '--'}</div><div class="metric-label">WPM</div></div>
+        <div class="metric"><div class="metric-value">${record.duration || '--'}s</div><div class="metric-label">时长</div></div>
+        <div class="metric"><div class="metric-value">${record.fillerCount || 0}</div><div class="metric-label">填充词</div></div>
+      </div>
+    </div>`;
+  
+  // Transcript
+  html += `
+    <div class="section">
+      <div class="section-title">📝 转录文本</div>
+      <div style="background:var(--slate-50);padding:16px;border-radius:var(--radius-sm);font-size:14px;line-height:1.8;color:var(--slate-700);">
+        ${escapeHtml(record.text || '无文本')}
+      </div>
+    </div>`;
+  
+  // Correction content (if available)
+  if (record.correction) {
+    const c = record.correction;
+    
+    if (c.corrections_data) {
+      html += `
+        <div class="section">
+          <div class="section-title">✏️ 逐句批改</div>
+          <table class="correction-table">
+            <thead><tr><th>原文</th><th>修改</th><th>说明</th></tr></thead>
+            <tbody>`;
+      
+      const items = typeof c.corrections_data === 'string' ? JSON.parse(c.corrections_data) : c.corrections_data;
+      items.forEach(item => {
+        html += `<tr>
+          <td class="original">${escapeHtml(item.original || '')}</td>
+          <td class="corrected">${escapeHtml(item.corrected || '')}</td>
+          <td class="explanation">${escapeHtml(item.explanation || '')}</td>
+        </tr>`;
+      });
+      
+      html += `</tbody></table></div>`;
+    }
+    
+    if (c.polished_version) {
+      html += `
+        <div class="section">
+          <div class="section-title">✨ 润色版本</div>
+          <div class="polished-text">${escapeHtml(c.polished_version)}</div>
+        </div>`;
+    }
+    
+    if (c.overall_comment) {
+      html += `
+        <div class="section">
+          <div class="section-title">💬 老师总评</div>
+          <div class="overall-comment">${escapeHtml(c.overall_comment)}</div>
+        </div>`;
+    }
+  } else if (record.status !== 'completed') {
+    html += `
+      <div class="section" style="text-align:center;padding:32px;color:var(--slate-400);">
+        ⏳ 老师还没有批改，请耐心等待
+      </div>`;
+  }
+  
+  content.innerHTML = html;
+  modal.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('correctionModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+/* ============================================
+   DASHBOARD & STATS
+   ============================================ */
+function updateDashboard() {
+  const history = AppState.practiceHistory;
+  document.getElementById('statTotalPractice').textContent = history.length;
+  document.getElementById('statCorrected').textContent = history.filter(r => r.status === 'completed').length;
+  document.getElementById('statPending').textContent = history.filter(r => r.status === 'pending' || r.status === 'submitted').length;
+  
+  // Streak calculation
+  const streak = calculateStreak(history);
+  document.getElementById('statStreak').textContent = streak;
+  
+  // Update local data count in settings
+  document.getElementById('localDataCount').textContent = `${history.length} 条练习记录`;
+}
+
+function updateStats() {
+  const history = AppState.practiceHistory;
+  
+  if (history.length === 0) return;
+  
+  const avgWPM = Math.round(history.reduce((s, r) => s + (r.wpm || 0), 0) / history.length);
+  const avgWords = Math.round(history.reduce((s, r) => s + (r.wordCount || 0), 0) / history.length);
+  const avgFillers = (history.reduce((s, r) => s + (r.fillerCount || 0), 0) / history.length).toFixed(1);
+  
+  document.getElementById('avgWPM').textContent = avgWPM || '--';
+  document.getElementById('avgWords').textContent = avgWords || '--';
+  document.getElementById('avgFillers').textContent = avgFillers;
+  document.getElementById('totalSessions').textContent = history.length;
+  
+  // Recent sessions
+  const recentEl = document.getElementById('recentSessions');
+  const recent = history.slice(0, 10);
+  
+  if (recent.length === 0) return;
+  
+  recentEl.innerHTML = recent.map(r => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--slate-100);">
+      <div>
+        <div style="font-size:13px;color:var(--slate-500);">${formatDate(r.createdAt)}</div>
+        <div style="font-size:14px;color:var(--slate-700);margin-top:2px;">${(r.text||'').substring(0, 50)}...</div>
+      </div>
+      <div style="display:flex;gap:12px;font-size:12px;color:var(--slate-500);white-space:nowrap;">
+        <span>${r.wordCount || '--'} 词</span>
+        <span>${r.wpm || '--'} WPM</span>
+        <span>${r.fillerCount || 0} 填充</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function calculateStreak(history) {
+  if (history.length === 0) return 0;
+  
+  const dates = [...new Set(history.map(r => new Date(r.createdAt).toDateString()))];
+  dates.sort((a, b) => new Date(b) - new Date(a));
+  
+  let streak = 0;
+  let checkDate = new Date();
+  checkDate.setHours(0,0,0,0);
+  
+  for (const dateStr of dates) {
+    const d = new Date(dateStr);
+    d.setHours(0,0,0,0);
+    
+    const diff = Math.round((checkDate - d) / (1000 * 60 * 60 * 24));
+    if (diff <= 1) {
+      streak++;
+      checkDate = d;
+    } else {
+      break;
+    }
+  }
+  
+  return streak;
+}
+
+/* ============================================
+   RESET PRACTICE
+   ============================================ */
+function resetPractice() {
+  removeAudio();
+  AppState.currentResult = null;
+  document.getElementById('resultPanel').style.display = 'none';
+  document.getElementById('transcriptText').innerHTML = '';
+  document.getElementById('detailTags').innerHTML = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ============================================
+   SETTINGS
+   ============================================ */
+function toggleSupabaseConfig() {
+  const el = document.getElementById('supabaseConfig');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  
+  if (AppState.supabaseUrl) document.getElementById('supabaseUrl').value = AppState.supabaseUrl;
+  if (AppState.supabaseAnonKey) document.getElementById('supabaseKey').value = AppState.supabaseAnonKey;
+}
+
+function saveSupabaseConfig() {
+  const url = document.getElementById('supabaseUrl').value.trim();
+  const key = document.getElementById('supabaseKey').value.trim();
+  
+  if (!url || !key) {
+    toast('请填写完整', 'error');
+    return;
+  }
+  
+  AppState.supabaseUrl = url;
+  AppState.supabaseAnonKey = key;
+  localStorage.setItem('speaklab_supabase_url', url);
+  localStorage.setItem('speaklab_supabase_key', key);
+  
+  document.getElementById('supabaseStatus').textContent = '已配置 ✅';
+  document.getElementById('supabaseConfig').style.display = 'none';
+  
+  initSupabase();
+  toast('Supabase 连接已保存', 'success');
+}
+
+function clearLocalData() {
+  if (confirm('确定清除所有本地练习数据？此操作不可撤销。')) {
+    AppState.practiceHistory = [];
+    localStorage.removeItem('speaklab_history');
+    updateDashboard();
+    toast('本地数据已清除', 'info');
+  }
+}
+
+/* ============================================
+   UTILITIES
+   ============================================ */
+function toast(msg, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'} ${msg}`;
+  container.appendChild(el);
+  setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(20px)';
+    el.style.transition = '0.3s ease';
+    setTimeout(() => el.remove(), 300);
+  }, 3000);
+}
+
+function formatBytes(bytes) {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '--';
+  const d = new Date(dateStr);
+  const now = new Date();
+  const diff = now - d;
+  
+  if (diff < 60000) return '刚刚';
+  if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前';
+  if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前';
+  if (diff < 604800000) return Math.floor(diff / 86400000) + '天前';
+  
+  return `${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+
+</body>
+</html>
